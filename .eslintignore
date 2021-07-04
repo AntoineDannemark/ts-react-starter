@@ -1,0 +1,4 @@
+dist
+scripts
+config
+webpack.config.ts
