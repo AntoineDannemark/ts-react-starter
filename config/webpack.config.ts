@@ -4,35 +4,24 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
 
 import paths from './paths';
-// import { isDevEnv } from './utils';
 
 export type WebpackEnv = 'production' | 'development';
+
+import plugins from './plugins';
 
 const REGEX = {
   TS: /\.tsx?$/,
   NODE_MODULES: /node_modules/,
-  STYLE: /\.s[ac]ss$/i, 
+  STYLE: /\.s[ac]ss$/i,
 };
 
-// const plugins = {
-//   default: [
-//     require('./plugins/fork-ts-checker')(webpackEnv),
-//     require('./plugins/html')(webpackEnv),
-//   ],
-//   dev: [],
-//   prod: [require('./plugins/mini-css-extract')(webpackEnv)],
-// };
-
-// const isEnvProduction = (env: WebpackEnv) => env.production;
-
-// const getPlugins = (env: WebpackEnv) =>
-//   plugins.default.concat(isEnvProduction(env) ? plugins.prod : plugins.dev);
-
 const createConfig = (env: any, argv: any): webpack.Configuration => {
+  console.log(env);
+  console.log(process.env.NODE_ENV);
+
   const isEnvProduction = env.production;
   const webpackEnv: WebpackEnv = isEnvProduction ? 'production' : 'development';
 
-  console.log({ env, argv });
   return {
     mode: webpackEnv,
     devtool: isEnvProduction ? 'source-map' : 'eval-cheap-module-source-map',
@@ -89,9 +78,13 @@ const createConfig = (env: any, argv: any): webpack.Configuration => {
         },
       },
     },
-    // plugins: plugins.default.concat(
-    //   isEnvProduction ? plugins.prod : plugins.dev
-    // ),
+    plugins: (() => {
+      const res = plugins.base.concat(
+        isEnvProduction ? plugins.prod : plugins.dev
+      );
+      console.log(res);
+      return res;
+    })(),
     output: {
       filename: '[name].bundle.js',
       path: paths.appDist,
