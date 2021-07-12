@@ -3,10 +3,21 @@ const htmlPlugin = require('./html');
 const miniCssPlugin = require('./mini-css-extract');
 const compressionPlugin = require('./compression');
 
-const plugins = {
-    base: [forkTsCheckerPlugin('production'), htmlPlugin('production')],
-    prod: [miniCssPlugin('production'), compressionPlugin('production')],
-    dev: [],
-};
+const prodPlugins = [miniCssPlugin(), compressionPlugin()];
 
-export default plugins;
+const devPlugins: any[] = [];
+
+const getBasePlugins = (isProd: boolean) => [
+  forkTsCheckerPlugin(isProd),
+  htmlPlugin(isProd),
+];
+
+const getPlugins = (isProd: boolean) => {
+    const res = getBasePlugins(isProd).concat(isProd ? prodPlugins : devPlugins);
+  
+    console.log({isProd, res});
+
+    return res;
+}
+
+export default getPlugins;

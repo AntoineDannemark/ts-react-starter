@@ -5,9 +5,11 @@ import TerserPlugin from 'terser-webpack-plugin';
 
 import paths from './paths';
 
-export type WebpackEnv = 'production' | 'development';
+type WebpackEnv = 'production' | 'development';
 
-import plugins from './plugins';
+export const isProdEnv = (env: WebpackEnv) => env === 'production';
+
+import getPlugins from './plugins';
 
 const REGEX = {
   TS: /\.tsx?$/,
@@ -16,12 +18,12 @@ const REGEX = {
 };
 
 const createConfig = (env: any, argv: any): webpack.Configuration => {
-  const isEnvProduction = env.production;
-  const webpackEnv: WebpackEnv = isEnvProduction ? 'production' : 'development';
+  const isProd = isProdEnv(process.env.NODE_ENV as WebpackEnv); 
+  // const mode: WebpackEnv = isProd ? 'production' : 'development';
 
   return {
-    mode: webpackEnv,
-    devtool: isEnvProduction ? 'source-map' : 'eval-cheap-module-source-map',
+    mode: isProd ? 'production' : 'development',
+    devtool: isProd ? 'source-map' : 'eval-cheap-module-source-map',
     context: paths.appPath,
     entry: paths.appIndex,
     resolve: {
@@ -43,7 +45,7 @@ const createConfig = (env: any, argv: any): webpack.Configuration => {
         {
           test: REGEX.STYLE,
           use: [
-            !isEnvProduction ? 'style-loader' : MiniCssExtractPlugin.loader,
+            !isProd ? 'style-loader' : MiniCssExtractPlugin.loader,
             {
               loader: 'css-loader',
               options: {
@@ -62,7 +64,7 @@ const createConfig = (env: any, argv: any): webpack.Configuration => {
       ],
     },
     optimization: {
-      minimize: !!env.production,
+      minimize: isProd,
       minimizer: [new TerserPlugin({})],
       // splitChunks: {
       //   cacheGroups: {
@@ -75,7 +77,7 @@ const createConfig = (env: any, argv: any): webpack.Configuration => {
       //   },
       // },
     },
-    plugins: plugins.base.concat(isEnvProduction ? plugins.prod : plugins.dev),
+    plugins: getPlugins(isProd),
     output: {
       filename: '[name].bundle.js',
       path: paths.appDist,

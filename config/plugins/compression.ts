@@ -1,9 +1,7 @@
 import CompressionPlugin from 'compression-webpack-plugin';
 import zlib from 'zlib';
 
-import { WebpackEnv } from './../webpack.config';
-
-module.exports = (env: WebpackEnv) =>
+module.exports = () =>
   new CompressionPlugin({
     filename: '[path][base].br',
     algorithm: 'brotliCompress',

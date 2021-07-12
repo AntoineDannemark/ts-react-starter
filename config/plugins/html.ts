@@ -1,11 +1,9 @@
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 
-import type { WebpackEnv } from '../webpack.config';
-
 // TODO Process data from package.json?
 const title = "TS-Reac-Starter";
 
-module.exports = (env: WebpackEnv) => new HtmlWebpackPlugin({
+module.exports = () => new HtmlWebpackPlugin({
     templateContent: `
         <!DOCTYPE html>
         <html lang="en">

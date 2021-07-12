@@ -9,16 +9,12 @@ import path from 'path';
 
 import paths from '../paths';
 
-import { isDevEnv } from '../utils';
-
-import type { WebpackEnv } from '../webpack.config';
-
-module.exports = (env: WebpackEnv) =>
+module.exports = (isProd: boolean) =>
   new ForkTsCheckerWebpackPlugin({
     // If true, reports issues after webpack's compilation is done.
     // Thanks to that it doesn't block the compilation.
     // Used only in the watch mode.
-    async: isDevEnv(env),
+    async: !isProd,
     typescript: {
       configFile: paths.appTsConfig,
       diagnosticOptions: {

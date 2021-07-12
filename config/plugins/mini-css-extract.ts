@@ -1,8 +1,6 @@
 import MiniCssExtractPlugin  from 'mini-css-extract-plugin' 
 
-import type { WebpackEnv } from "../webpack.config";
-
-module.exports = (env: WebpackEnv) => {
+module.exports = () => {
     return new MiniCssExtractPlugin({
         filename: '[name].css',
         chunkFilename: '[id].css',
