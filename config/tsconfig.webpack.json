@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "CommonJS",
+        "outDir": "js",
+        "strict": true,
+        "moduleResolution": "node",          
+        "baseUrl": ".",      
+        "allowSyntheticDefaultImports": true, 
+        "esModuleInterop": true,  
+        "skipLibCheck": true,                     
+        "forceConsistentCasingInFileNames": true,
+        "allowJs": false  
+      },
+      "include": [
+        "."
+    ]
+}

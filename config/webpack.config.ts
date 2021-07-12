@@ -16,9 +16,6 @@ const REGEX = {
 };
 
 const createConfig = (env: any, argv: any): webpack.Configuration => {
-  console.log(env);
-  console.log(process.env.NODE_ENV);
-
   const isEnvProduction = env.production;
   const webpackEnv: WebpackEnv = isEnvProduction ? 'production' : 'development';
 
@@ -67,24 +64,18 @@ const createConfig = (env: any, argv: any): webpack.Configuration => {
     optimization: {
       minimize: !!env.production,
       minimizer: [new TerserPlugin({})],
-      splitChunks: {
-        cacheGroups: {
-          commons: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-            enforce: true,
-          },
-        },
-      },
+      // splitChunks: {
+      //   cacheGroups: {
+      //     commons: {
+      //       test: /[\\/]node_modules[\\/]/,
+      //       name: 'vendors',
+      //       chunks: 'all',
+      //       enforce: true,
+      //     },
+      //   },
+      // },
     },
-    plugins: (() => {
-      const res = plugins.base.concat(
-        isEnvProduction ? plugins.prod : plugins.dev
-      );
-      console.log(res);
-      return res;
-    })(),
+    plugins: plugins.base.concat(isEnvProduction ? plugins.prod : plugins.dev),
     output: {
       filename: '[name].bundle.js',
       path: paths.appDist,
