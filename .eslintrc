@@ -19,7 +19,8 @@
     "project": "./tsconfig.json"
   },
   "rules": {
-    // "@typescript-eslint/rule-name": "error"
+    // "@typescript-eslint/rule-name": "error",
+    "react/prop-types": 0,
     "object-curly-newline": [
       "warn",
       {

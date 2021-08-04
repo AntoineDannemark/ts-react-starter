@@ -1,0 +1,11 @@
+.tab_header_container {
+    flex: 5 0 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.account_menu_container {
+    background-color: lightslategrey;
+    padding: 1rem;
+    flex: 1 0 auto;
+}

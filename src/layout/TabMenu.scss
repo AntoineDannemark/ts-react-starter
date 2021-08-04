@@ -1,0 +1,12 @@
+.tablink {
+    background-color: lightslategrey;
+    flex: 1 0 auto;
+    text-align: center;
+    justify-content: stretch;
+}
+.tablink_active {
+    background-color: lightblue;
+    flex: 1 0 auto;
+    text-align: center;
+    justify-content: stretch;
+}

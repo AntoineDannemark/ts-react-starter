@@ -81,6 +81,7 @@ const createConfig = (env: any, argv: any): webpack.Configuration => {
     output: {
       filename: '[name].bundle.js',
       path: paths.appDist,
+      publicPath: '/',
     },
   };
 };

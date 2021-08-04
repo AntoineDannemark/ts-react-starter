@@ -1,0 +1,10 @@
+.header_container {
+    display: flex;
+    flex: 2 0 0
+}
+
+.content_container {
+    background-color: lightblue;    
+    flex: 8 1 0;
+    padding: 1rem;
+}

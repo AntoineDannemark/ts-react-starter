@@ -1,7 +1,7 @@
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 // TODO Process data from package.json?
-const title = "TS-Reac-Starter";
+const title = "TS-React-Starter";
 
 module.exports = () => new HtmlWebpackPlugin({
     templateContent: `
