@@ -3,6 +3,5 @@ import type { AppDispatch, RootState } from './store';
 
 export const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
 
-// TODO : Change type any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const useAppDispatch = (): any => useDispatch<AppDispatch>();
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const useAppDispatch = () => useDispatch<AppDispatch>();

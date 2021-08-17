@@ -8,6 +8,7 @@ import {
   SLOT_STATUS_DEFAULT,
   SLOT_STATUS_SELECTED,
 } from '../../core/constants';
+
 import { BoardState } from './interfaces';
 
 const board = generateBoard();
