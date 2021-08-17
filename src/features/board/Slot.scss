@@ -1,0 +1,15 @@
+.slot {
+    width: 5rem;
+    height: 5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: darkkhaki;
+    &__black {
+        background-color: firebrick;
+    }
+    &__selected {
+        background-color: pink;
+    }
+}

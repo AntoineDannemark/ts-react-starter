@@ -1,7 +1,13 @@
 import React from 'react';
 
+import Board from '../features/board/Board';
+
 const App: React.FC = () => {
-  return <div>Hello World</div>;
+  return (
+    <>
+      <Board />
+    </>
+  );
 };
 
 export default App;
