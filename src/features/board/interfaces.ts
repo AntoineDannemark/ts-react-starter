@@ -1,9 +1,4 @@
-import { Color, Figure, SlotStatus } from '../../core/constants';
-
-export interface Piece {
-  figure: Figure;
-  color: Color;
-}
+import { Color, Piece, SlotStatus } from '../../core/constants';
 
 export interface ISlot {
   piece: Piece | null;

@@ -1,17 +1,32 @@
 import {
   BISHOP,
   BLACK,
+  SLOT_STATUS_DEFAULT,
+  WHITE,
+  BLACK_BISHOP_SYMBOL,
+  BLACK_KING_SYMBOL,
+  BLACK_KNIGHT_SYMBOL,
+  BLACK_PAWN_SYMBOL,
+  BLACK_QUEEN_SYMBOL,
+  BLACK_ROOK_SYMBOL,
   Color,
+  FigureSymbol,
   KING,
   KNIGHT,
   PAWN,
   QUEEN,
   ROOK,
-  SLOT_STATUS_DEFAULT,
-  WHITE,
+  WHITE_BISHOP_SYMBOL,
+  WHITE_KING_SYMBOL,
+  WHITE_PAWN_SYMBOL,
+  WHITE_QUEEN_SYMBOL,
+  WHITE_ROOK_SYMBOL,
+  EmptyString,
+  EMPTY_STRING,
+  Piece,
 } from './constants';
 
-import { IBoard, Piece, IRow } from '../features/board/interfaces';
+import { IBoard, IRow } from '../features/board/interfaces';
 
 const getPieceColor = (row: number): Color => (row < 2 ? WHITE : BLACK);
 
@@ -90,4 +105,27 @@ export const generateBoard = (): IBoard => {
   }
 
   return result;
+};
+
+export const renderPiece = (piece: Piece): FigureSymbol | EmptyString => {
+  const { figure, color } = piece;
+
+  const isBlack = color === BLACK;
+
+  switch (figure) {
+    case PAWN:
+      return isBlack ? BLACK_PAWN_SYMBOL : WHITE_PAWN_SYMBOL;
+    case BISHOP:
+      return isBlack ? BLACK_BISHOP_SYMBOL : WHITE_BISHOP_SYMBOL;
+    case KNIGHT:
+      return isBlack ? BLACK_KNIGHT_SYMBOL : WHITE_KING_SYMBOL;
+    case ROOK:
+      return isBlack ? BLACK_ROOK_SYMBOL : WHITE_ROOK_SYMBOL;
+    case QUEEN:
+      return isBlack ? BLACK_QUEEN_SYMBOL : WHITE_QUEEN_SYMBOL;
+    case KING:
+      return isBlack ? BLACK_KING_SYMBOL : WHITE_KING_SYMBOL;
+    default:
+      return EMPTY_STRING;
+  }
 };
