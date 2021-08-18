@@ -1,7 +1,6 @@
 import {
   BISHOP,
   BLACK,
-  SLOT_STATUS_DEFAULT,
   WHITE,
   BLACK_BISHOP_SYMBOL,
   BLACK_KING_SYMBOL,
@@ -93,7 +92,7 @@ export const generateBoard = (): IBoard => {
       row[ci] = {
         piece: getPiece(ri, ci),
         color: slotIsBlack ? BLACK : WHITE,
-        status: SLOT_STATUS_DEFAULT,
+        coords: `${ri},${ci}`,
       };
 
       slotIsBlack = !slotIsBlack;
@@ -130,7 +129,7 @@ export const renderPiece = (piece: Piece): FigureSymbol | EmptyString => {
   }
 };
 
-type Coords = [number, number];
-
-export const compareCoords = (coordsOne: Coords, coordsTwo: Coords): boolean =>
-  JSON.stringify(coordsOne) === JSON.stringify(coordsTwo);
+export const parseCoords = (coords: string): [number, number] => [
+  parseInt(coords.split(',')[0], 10),
+  parseInt(coords.split(',')[1], 10),
+];

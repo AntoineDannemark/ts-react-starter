@@ -1,9 +1,9 @@
-import { Color, Piece, SlotStatus } from '../../core/constants';
+import { Color, Piece } from '../../core/constants';
 
 export interface ISlot {
   piece: Piece | null;
   color: Color;
-  status: SlotStatus;
+  coords: string;
 }
 
 export type IRow = {
@@ -16,5 +16,7 @@ export type IBoard = {
 
 export interface BoardState {
   board: IBoard;
-  selected: [number, number] | null;
+  color: Color;
+  selected: ISlot | null;
+  targets: string[];
 }

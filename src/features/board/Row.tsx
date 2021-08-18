@@ -8,18 +8,13 @@ import './Row.scss';
 
 interface RowProps {
   row: IRow;
-  index: number;
 }
 
-const Row: React.FC<RowProps> = ({ row, index: rowIndex }) => {
+const Row: React.FC<RowProps> = ({ row }) => {
   return (
     <div className="row__container">
-      {Object.entries(row).map(([slotIndex, slot]) => (
-        <Slot
-          slot={slot}
-          key={slotIndex}
-          coords={[rowIndex, parseInt(slotIndex, 10)]}
-        />
+      {Object.values(row).map(slot => (
+        <Slot slot={slot} key={slot.coords} />
       ))}
     </div>
   );

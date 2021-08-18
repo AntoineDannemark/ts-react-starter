@@ -16,7 +16,7 @@ const Board: React.FC<Props> = () => {
   return (
     <div className="board__container">
       {Object.entries(board).map(([rowIndex, row]) => (
-        <Row row={row} key={rowIndex} index={parseInt(rowIndex, 10)} />
+        <Row row={row} key={rowIndex} />
       ))}
     </div>
   );

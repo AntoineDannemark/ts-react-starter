@@ -61,13 +61,3 @@ export type FigureSymbol =
 export const EMPTY_STRING = '';
 
 export type EmptyString = typeof EMPTY_STRING;
-
-// Slot status
-export const SLOT_STATUS_DEFAULT = 'default';
-export const SLOT_STATUS_SELECTED = 'selected';
-export const SLOT_STATUS_TARGETED = 'targeted';
-
-export type SlotStatus =
-  | typeof SLOT_STATUS_DEFAULT
-  | typeof SLOT_STATUS_SELECTED
-  | typeof SLOT_STATUS_TARGETED;

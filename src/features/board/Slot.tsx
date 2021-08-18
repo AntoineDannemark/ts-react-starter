@@ -3,33 +3,34 @@
 import React from 'react';
 
 import { useAppDispatch, useTypedSelector } from '../../app/hooks';
-// import { deselectSlot, selectSlot } from './boardSlice';
 
-import { compareCoords, renderPiece } from '../../core/functions';
+import { renderPiece } from '../../core/functions';
 
 import { BLACK } from '../../core/constants';
 
 import { ISlot } from './interfaces';
 
 import './Slot.scss';
+import { selectSlot, moveSlot } from './boardSlice';
 
 interface SlotProps {
   slot: ISlot;
-  coords: [number, number];
 }
 
-const Slot: React.FC<SlotProps> = ({ slot, coords }) => {
-  const { selected } = useTypedSelector(state => state.board);
+const Slot: React.FC<SlotProps> = ({ slot }) => {
+  const { selected, color, targets } = useTypedSelector(state => state.board);
 
-  const isSelected = selected && compareCoords(coords, selected);
+  const isSelected = selected?.coords === slot.coords;
+  const isTarget = targets.includes(slot.coords);
 
   const dispatch = useAppDispatch();
 
   const handleClick = (): void => {
-    if (!slot.piece) return;
-
-    // if (!isSelected) dispatch(selectSlot(coords));
-    // else if (isSelected) dispatch(deselectSlot(coords));
+    if (isTarget) {
+      dispatch(moveSlot(slot));
+    } else if (slot.piece?.color === color) {
+      dispatch(selectSlot(slot));
+    }
   };
 
   return (

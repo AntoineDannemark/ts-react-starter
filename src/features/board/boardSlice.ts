@@ -1,54 +1,51 @@
 /* eslint-disable no-param-reassign */
-import {
-  createSlice,
-  // PayloadAction
-} from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { generateBoard } from '../../core/functions';
+import { generateBoard, parseCoords } from '../../core/functions';
 
-import {
-  BOARD_DOMAIN,
-  //   SLOT_STATUS_DEFAULT,
-  //   SLOT_STATUS_SELECTED,
-} from '../../core/constants';
+import { BOARD_DOMAIN, WHITE } from '../../core/constants';
 
-import { BoardState } from './interfaces';
+import { BoardState, ISlot } from './interfaces';
 
 const board = generateBoard();
 
 const initialState: BoardState = {
   board,
+  color: WHITE,
   selected: null,
+  targets: ['2,1', '2,2'],
 };
 
 const boardSlice = createSlice({
   name: BOARD_DOMAIN,
   initialState,
   reducers: {
-    // select: (
-    //   state,
-    //   { payload: [rowIdx, colIdx] }: PayloadAction<[number, number]>
-    // ) => {
-    //   if (state.selected) {
-    //     const [oldRowIx, oldColIdx] = state.selected;
-    //     // TODO Remove and infer in compo from state.selected
-    //     // state.board[oldRowIx][oldColIdx].status = SLOT_STATUS_DEFAULT;
-    //   }
-    //   state.board[rowIdx][colIdx].status = SLOT_STATUS_SELECTED;
-    //   state.selected = [rowIdx, colIdx];
-    // },
-    // deselect: (
-    //   state,
-    //   { payload: [rowIdx, colIdx] }: PayloadAction<[number, number]>
-    // ) => {
-    //   state.board[rowIdx][colIdx].status = SLOT_STATUS_DEFAULT;
-    //   state.selected = null;
-    // },
+    select: (state, { payload }: PayloadAction<ISlot>) => {
+      if (state.selected?.coords === payload.coords) {
+        state.selected = null;
+      } else {
+        state.selected = payload;
+      }
+    },
+    move: (state, { payload }: PayloadAction<ISlot>) => {
+      if (!state.selected) return;
+
+      const [targetRowIdx, targetColIdx] = parseCoords(payload.coords);
+      const [selectedRowIdx, selectedColIdx] = parseCoords(
+        state.selected.coords
+      );
+
+      const target = state.board[targetRowIdx][targetColIdx];
+      const selected = state.board[selectedRowIdx][selectedColIdx];
+
+      target.piece = state.selected.piece;
+      selected.piece = null;
+
+      state.selected = null;
+    },
   },
 });
 
-// export const {
-// select: selectSlot,
-// deselect: deselectSlot
-// } = boardSlice.actions;
+export const { select: selectSlot, move: moveSlot } = boardSlice.actions;
+
 export default boardSlice.reducer;
