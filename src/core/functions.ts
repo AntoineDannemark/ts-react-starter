@@ -129,3 +129,8 @@ export const renderPiece = (piece: Piece): FigureSymbol | EmptyString => {
       return EMPTY_STRING;
   }
 };
+
+type Coords = [number, number];
+
+export const compareCoords = (coordsOne: Coords, coordsTwo: Coords): boolean =>
+  JSON.stringify(coordsOne) === JSON.stringify(coordsTwo);

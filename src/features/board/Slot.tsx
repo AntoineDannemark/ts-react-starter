@@ -3,9 +3,9 @@
 import React from 'react';
 
 import { useAppDispatch, useTypedSelector } from '../../app/hooks';
-import { deselectSlot, selectSlot } from './boardSlice';
+// import { deselectSlot, selectSlot } from './boardSlice';
 
-import { renderPiece } from '../../core/functions';
+import { compareCoords, renderPiece } from '../../core/functions';
 
 import { BLACK } from '../../core/constants';
 
@@ -18,11 +18,6 @@ interface SlotProps {
   coords: [number, number];
 }
 
-type Coords = [number, number];
-
-const compareCoords = (coordsOne: Coords, coordsTwo: Coords): boolean =>
-  JSON.stringify(coordsOne) === JSON.stringify(coordsTwo);
-
 const Slot: React.FC<SlotProps> = ({ slot, coords }) => {
   const { selected } = useTypedSelector(state => state.board);
 
@@ -33,8 +28,8 @@ const Slot: React.FC<SlotProps> = ({ slot, coords }) => {
   const handleClick = (): void => {
     if (!slot.piece) return;
 
-    if (!isSelected) dispatch(selectSlot(coords));
-    else if (isSelected) dispatch(deselectSlot(coords));
+    // if (!isSelected) dispatch(selectSlot(coords));
+    // else if (isSelected) dispatch(deselectSlot(coords));
   };
 
   return (
