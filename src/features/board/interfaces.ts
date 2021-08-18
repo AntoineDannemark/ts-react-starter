@@ -16,4 +16,5 @@ export type IBoard = {
 
 export interface BoardState {
   board: IBoard;
+  selected: [number, number] | null;
 }
