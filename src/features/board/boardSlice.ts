@@ -1,11 +1,11 @@
 /* eslint-disable no-param-reassign */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { generateBoard, parseCoords } from '../../core/functions';
+import { generateBoard, getTargets, parseCoords } from '../../core/functions';
 
 import { BOARD_DOMAIN, WHITE } from '../../core/constants';
 
-import { BoardState, ISlot } from './interfaces';
+import type { BoardState, ISlot } from './interfaces';
 
 const board = generateBoard();
 
@@ -13,7 +13,7 @@ const initialState: BoardState = {
   board,
   color: WHITE,
   selected: null,
-  targets: ['2,1', '2,2'],
+  targets: [],
 };
 
 const boardSlice = createSlice({
@@ -23,13 +23,14 @@ const boardSlice = createSlice({
     select: (state, { payload }: PayloadAction<ISlot>) => {
       if (state.selected?.coords === payload.coords) {
         state.selected = null;
+        state.targets = [];
       } else {
         state.selected = payload;
+        state.targets = getTargets(payload, state);
       }
     },
     move: (state, { payload }: PayloadAction<ISlot>) => {
       if (!state.selected) return;
-
       const [targetRowIdx, targetColIdx] = parseCoords(payload.coords);
       const [selectedRowIdx, selectedColIdx] = parseCoords(
         state.selected.coords
@@ -42,6 +43,7 @@ const boardSlice = createSlice({
       selected.piece = null;
 
       state.selected = null;
+      state.targets = [];
     },
   },
 });

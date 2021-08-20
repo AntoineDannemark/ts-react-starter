@@ -37,7 +37,8 @@ const Slot: React.FC<SlotProps> = ({ slot }) => {
     <div
       className={'slot'
         .concat(slot.color === BLACK ? ' slot__black' : '')
-        .concat(isSelected ? ' slot__selected' : '')}
+        .concat(isSelected ? ' slot__selected' : '')
+        .concat(isTarget ? ' slot__target' : '')}
       onClick={handleClick}>
       {slot.piece && renderPiece(slot.piece)}
     </div>

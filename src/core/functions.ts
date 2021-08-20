@@ -1,3 +1,10 @@
+import type {
+  ISlot,
+  IBoard,
+  IRow,
+  BoardState,
+} from '../features/board/interfaces';
+
 import {
   BISHOP,
   BLACK,
@@ -24,8 +31,6 @@ import {
   EMPTY_STRING,
   Piece,
 } from './constants';
-
-import { IBoard, IRow } from '../features/board/interfaces';
 
 const getPieceColor = (row: number): Color => (row < 2 ? WHITE : BLACK);
 
@@ -133,3 +138,47 @@ export const parseCoords = (coords: string): [number, number] => [
   parseInt(coords.split(',')[0], 10),
   parseInt(coords.split(',')[1], 10),
 ];
+
+const outOfBound = (index: number) => index < 0 || index > 7;
+
+const getPawnTargets = (slot: ISlot, state: BoardState): string[] => {
+  const result: string[] = [];
+
+  const [rowIdx, colIdx] = parseCoords(slot.coords);
+
+  const targetRow = slot.coords === BLACK ? rowIdx - 1 : rowIdx + 1;
+
+  if (outOfBound(targetRow)) return result;
+
+  for (let i = -1; i < 2; i++) {
+    const targetCol = colIdx + i;
+
+    // eslint-disable-next-line no-continue
+    if (outOfBound(targetCol)) continue;
+
+    if (
+      (i !== 0 &&
+        state.board[targetRow][targetCol].piece &&
+        state.board[targetRow][targetCol].piece?.color !== state.color) ||
+      (!state.board[targetRow][targetCol].piece && i === 0)
+    ) {
+      result.push(`${targetRow},${targetCol}`);
+    }
+  }
+
+  return result;
+};
+
+export const getTargets = (slot: ISlot, state: BoardState): string[] => {
+  switch (slot.piece?.figure) {
+    case PAWN:
+      return getPawnTargets(slot, state);
+    case BISHOP:
+    case KNIGHT:
+    case ROOK:
+    case QUEEN:
+    case KING:
+    default:
+      return [];
+  }
+};
