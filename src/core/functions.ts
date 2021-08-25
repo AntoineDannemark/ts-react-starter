@@ -30,6 +30,7 @@ import {
   EmptyString,
   EMPTY_STRING,
   Piece,
+  WHITE_KNIGHT_SYMBOL,
 } from './constants';
 
 const getPieceColor = (row: number): Color => (row < 2 ? WHITE : BLACK);
@@ -122,7 +123,7 @@ export const renderPiece = (piece: Piece): FigureSymbol | EmptyString => {
     case BISHOP:
       return isBlack ? BLACK_BISHOP_SYMBOL : WHITE_BISHOP_SYMBOL;
     case KNIGHT:
-      return isBlack ? BLACK_KNIGHT_SYMBOL : WHITE_KING_SYMBOL;
+      return isBlack ? BLACK_KNIGHT_SYMBOL : WHITE_KNIGHT_SYMBOL;
     case ROOK:
       return isBlack ? BLACK_ROOK_SYMBOL : WHITE_ROOK_SYMBOL;
     case QUEEN:
@@ -139,14 +140,46 @@ export const parseCoords = (coords: string): [number, number] => [
   parseInt(coords.split(',')[1], 10),
 ];
 
+const stringifyTarget = (rowIdx: number, colIdx: number): string =>
+  `${rowIdx},${colIdx}`;
+
 const outOfBound = (index: number) => index < 0 || index > 7;
+
+const isNotEmpty = (rowIdx: number, colIdx: number, board: IBoard): boolean =>
+  !!board[rowIdx][colIdx].piece;
+
+const isEmpty = (rowIdx: number, colIdx: number, board: IBoard): boolean =>
+  !isNotEmpty(rowIdx, colIdx, board);
+
+const isTeamMate = (
+  rowIdx: number,
+  colIdx: number,
+  board: IBoard,
+  color: Color
+): boolean =>
+  isNotEmpty(rowIdx, colIdx, board) &&
+  board[rowIdx][colIdx].piece?.color === color;
+
+const isOpponent = (
+  rowIdx: number,
+  colIdx: number,
+  board: IBoard,
+  color: Color
+): boolean =>
+  isNotEmpty(rowIdx, colIdx, board) &&
+  board[rowIdx][colIdx].piece?.color !== color;
+
+const isPawnFirstMove = (color: Color, rowIdx: number): boolean =>
+  color === BLACK ? rowIdx === 6 : rowIdx === 1;
 
 const getPawnTargets = (slot: ISlot, state: BoardState): string[] => {
   const result: string[] = [];
 
+  const { color, board } = state;
+
   const [rowIdx, colIdx] = parseCoords(slot.coords);
 
-  const targetRow = slot.coords === BLACK ? rowIdx - 1 : rowIdx + 1;
+  const targetRow = color === BLACK ? rowIdx - 1 : rowIdx + 1;
 
   if (outOfBound(targetRow)) return result;
 
@@ -157,12 +190,128 @@ const getPawnTargets = (slot: ISlot, state: BoardState): string[] => {
     if (outOfBound(targetCol)) continue;
 
     if (
-      (i !== 0 &&
-        state.board[targetRow][targetCol].piece &&
-        state.board[targetRow][targetCol].piece?.color !== state.color) ||
-      (!state.board[targetRow][targetCol].piece && i === 0)
+      (i !== 0 && isOpponent(targetRow, targetCol, board, color)) ||
+      (isEmpty(targetRow, targetCol, board) && i === 0)
     ) {
-      result.push(`${targetRow},${targetCol}`);
+      result.push(stringifyTarget(targetRow, targetCol));
+    }
+  }
+
+  if (
+    isPawnFirstMove(color, rowIdx) &&
+    isEmpty(targetRow, colIdx, board) &&
+    isEmpty(targetRow + 1, colIdx, board)
+  ) {
+    result.push(stringifyTarget(targetRow + 1, colIdx));
+  }
+
+  return result;
+};
+
+const getKnightTargets = (slot: ISlot, state: BoardState): string[] => {
+  const { board, color } = state;
+
+  const result: string[] = [];
+
+  const [rowIdx, colIdx] = parseCoords(slot.coords);
+
+  for (let rowAdd = -2; rowAdd < 3; rowAdd++) {
+    for (let colAdd = -2; colAdd < 3; colAdd++) {
+      const targetRow = rowIdx + rowAdd;
+      const targetCol = colIdx + colAdd;
+
+      if (
+        !outOfBound(targetRow) &&
+        !outOfBound(targetCol) &&
+        colAdd !== 0 &&
+        rowAdd !== 0 &&
+        Math.abs(rowAdd) !== Math.abs(colAdd) &&
+        !isTeamMate(targetRow, targetCol, board, color)
+      ) {
+        result.push(`${targetRow},${targetCol}`);
+      }
+    }
+  }
+
+  return result;
+};
+
+const getBishopTargets = (slot: ISlot, state: BoardState): string[] => {
+  const { board, color } = state;
+
+  const result: string[] = [];
+
+  const [rowIdx, colIdx] = parseCoords(slot.coords);
+
+  let upperRightStop = false;
+  let upperLeftStop = false;
+  let lowerRightStop = false;
+  let lowerLeftStop = false;
+
+  for (let i = 1; i < 8; i++) {
+    const targetRowPlus = rowIdx + i;
+    const targetRowMinus = rowIdx - i;
+    const targetColPlus = colIdx + i;
+    const targetColMinus = colIdx - i;
+
+    if (outOfBound(targetRowPlus)) {
+      upperRightStop = true;
+      upperLeftStop = true;
+    }
+
+    if (outOfBound(targetRowMinus)) {
+      lowerRightStop = true;
+      lowerLeftStop = true;
+    }
+
+    if (outOfBound(targetColPlus)) {
+      upperRightStop = true;
+      lowerRightStop = true;
+    }
+
+    if (outOfBound(targetColMinus)) {
+      upperLeftStop = true;
+      lowerLeftStop = true;
+    }
+
+    if (!upperRightStop) {
+      if (isNotEmpty(targetRowPlus, targetColPlus, board)) {
+        upperRightStop = true;
+      }
+
+      if (!isTeamMate(targetRowPlus, targetColPlus, board, color)) {
+        result.push(stringifyTarget(targetRowPlus, targetColPlus));
+      }
+    }
+
+    if (!upperLeftStop) {
+      if (isNotEmpty(targetRowPlus, targetColMinus, board)) {
+        upperLeftStop = true;
+      }
+
+      if (!isTeamMate(targetRowPlus, targetColMinus, board, color)) {
+        result.push(stringifyTarget(targetRowPlus, targetColMinus));
+      }
+    }
+
+    if (!lowerRightStop) {
+      if (isNotEmpty(targetRowMinus, targetColPlus, board)) {
+        lowerRightStop = true;
+      }
+
+      if (!isTeamMate(targetRowMinus, targetColPlus, board, color)) {
+        result.push(stringifyTarget(targetRowMinus, targetColPlus));
+      }
+    }
+
+    if (!lowerLeftStop) {
+      if (isNotEmpty(targetRowMinus, targetColMinus, board)) {
+        lowerLeftStop = true;
+      }
+
+      if (!isTeamMate(targetRowMinus, targetColMinus, board, color)) {
+        result.push(stringifyTarget(targetRowMinus, targetColMinus));
+      }
     }
   }
 
@@ -174,7 +323,9 @@ export const getTargets = (slot: ISlot, state: BoardState): string[] => {
     case PAWN:
       return getPawnTargets(slot, state);
     case BISHOP:
+      return getBishopTargets(slot, state);
     case KNIGHT:
+      return getKnightTargets(slot, state);
     case ROOK:
     case QUEEN:
     case KING:
