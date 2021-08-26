@@ -172,6 +172,16 @@ const isOpponent = (
 const isPawnFirstMove = (color: Color, rowIdx: number): boolean =>
   color === BLACK ? rowIdx === 6 : rowIdx === 1;
 
+const isEmptyStraightOrOpponentDiagonal = (
+  colIdx: number,
+  targetRow: number,
+  targetCol: number,
+  board: IBoard,
+  color: Color
+): boolean =>
+  (colIdx !== targetCol && isOpponent(targetRow, targetCol, board, color)) ||
+  (isEmpty(targetRow, targetCol, board) && colIdx === targetCol);
+
 const getPawnTargets = (slot: ISlot, state: BoardState): string[] => {
   const result: string[] = [];
 
@@ -186,12 +196,15 @@ const getPawnTargets = (slot: ISlot, state: BoardState): string[] => {
   for (let i = -1; i < 2; i++) {
     const targetCol = colIdx + i;
 
-    // eslint-disable-next-line no-continue
-    if (outOfBound(targetCol)) continue;
-
     if (
-      (i !== 0 && isOpponent(targetRow, targetCol, board, color)) ||
-      (isEmpty(targetRow, targetCol, board) && i === 0)
+      !outOfBound(targetCol) &&
+      isEmptyStraightOrOpponentDiagonal(
+        colIdx,
+        targetRow,
+        targetCol,
+        board,
+        color
+      )
     ) {
       result.push(stringifyTarget(targetRow, targetCol));
     }
@@ -243,76 +256,47 @@ const getBishopTargets = (slot: ISlot, state: BoardState): string[] => {
 
   const [rowIdx, colIdx] = parseCoords(slot.coords);
 
-  let upperRightStop = false;
-  let upperLeftStop = false;
-  let lowerRightStop = false;
-  let lowerLeftStop = false;
+  const directions = [
+    // Upper Right
+    {
+      stop: false,
+      getTargetRow: (distance: number) => rowIdx + distance,
+      getTargetCol: (distance: number) => colIdx + distance,
+    },
+    // Upper Left
+    {
+      stop: false,
+      getTargetRow: (distance: number) => rowIdx + distance,
+      getTargetCol: (distance: number) => colIdx - distance,
+    },
+    // Lower Right
+    {
+      stop: false,
+      getTargetRow: (distance: number) => rowIdx - distance,
+      getTargetCol: (distance: number) => colIdx + distance,
+    },
+    // Lower Left
+    {
+      stop: false,
+      getTargetRow: (distance: number) => rowIdx - distance,
+      getTargetCol: (distance: number) => colIdx - distance,
+    },
+  ];
 
   for (let i = 1; i < 8; i++) {
-    const targetRowPlus = rowIdx + i;
-    const targetRowMinus = rowIdx - i;
-    const targetColPlus = colIdx + i;
-    const targetColMinus = colIdx - i;
+    directions.forEach(direction => {
+      if (!direction.stop) {
+        const targetRow = direction.getTargetRow(i);
+        const targetCol = direction.getTargetCol(i);
 
-    if (outOfBound(targetRowPlus)) {
-      upperRightStop = true;
-      upperLeftStop = true;
-    }
-
-    if (outOfBound(targetRowMinus)) {
-      lowerRightStop = true;
-      lowerLeftStop = true;
-    }
-
-    if (outOfBound(targetColPlus)) {
-      upperRightStop = true;
-      lowerRightStop = true;
-    }
-
-    if (outOfBound(targetColMinus)) {
-      upperLeftStop = true;
-      lowerLeftStop = true;
-    }
-
-    if (!upperRightStop) {
-      if (isNotEmpty(targetRowPlus, targetColPlus, board)) {
-        upperRightStop = true;
+        if (!outOfBound(targetRow) && !outOfBound(targetCol)) {
+          // eslint-disable-next-line no-param-reassign
+          if (isNotEmpty(targetRow, targetCol, board)) direction.stop = true;
+          if (!isTeamMate(targetRow, targetCol, board, color))
+            result.push(stringifyTarget(targetRow, targetCol));
+        }
       }
-
-      if (!isTeamMate(targetRowPlus, targetColPlus, board, color)) {
-        result.push(stringifyTarget(targetRowPlus, targetColPlus));
-      }
-    }
-
-    if (!upperLeftStop) {
-      if (isNotEmpty(targetRowPlus, targetColMinus, board)) {
-        upperLeftStop = true;
-      }
-
-      if (!isTeamMate(targetRowPlus, targetColMinus, board, color)) {
-        result.push(stringifyTarget(targetRowPlus, targetColMinus));
-      }
-    }
-
-    if (!lowerRightStop) {
-      if (isNotEmpty(targetRowMinus, targetColPlus, board)) {
-        lowerRightStop = true;
-      }
-
-      if (!isTeamMate(targetRowMinus, targetColPlus, board, color)) {
-        result.push(stringifyTarget(targetRowMinus, targetColPlus));
-      }
-    }
-
-    if (!lowerLeftStop) {
-      if (isNotEmpty(targetRowMinus, targetColMinus, board)) {
-        lowerLeftStop = true;
-      }
-
-      if (!isTeamMate(targetRowMinus, targetColMinus, board, color)) {
-        result.push(stringifyTarget(targetRowMinus, targetColMinus));
-      }
-    }
+    });
   }
 
   return result;
