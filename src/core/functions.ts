@@ -302,6 +302,59 @@ const getBishopTargets = (slot: ISlot, state: BoardState): string[] => {
   return result;
 };
 
+const getRookTargets = (slot: ISlot, state: BoardState): string[] => {
+  const { board, color } = state;
+
+  const result: string[] = [];
+
+  const [rowIdx, colIdx] = parseCoords(slot.coords);
+
+  const directions = [
+    // Up
+    {
+      stop: false,
+      getTargetRow: (distance: number) => rowIdx + distance,
+      getTargetCol: () => colIdx,
+    },
+    // Down
+    {
+      stop: false,
+      getTargetRow: (distance: number) => rowIdx - distance,
+      getTargetCol: () => colIdx,
+    },
+    // Right
+    {
+      stop: false,
+      getTargetRow: () => rowIdx,
+      getTargetCol: (distance: number) => colIdx + distance,
+    },
+    // Left
+    {
+      stop: false,
+      getTargetRow: () => rowIdx,
+      getTargetCol: (distance: number) => colIdx - distance,
+    },
+  ];
+
+  for (let i = 1; i < 8; i++) {
+    directions.forEach(direction => {
+      if (!direction.stop) {
+        const targetRow = direction.getTargetRow(i);
+        const targetCol = direction.getTargetCol(i);
+
+        if (!outOfBound(targetRow) && !outOfBound(targetCol)) {
+          // eslint-disable-next-line no-param-reassign
+          if (isNotEmpty(targetRow, targetCol, board)) direction.stop = true;
+          if (!isTeamMate(targetRow, targetCol, board, color))
+            result.push(stringifyTarget(targetRow, targetCol));
+        }
+      }
+    });
+  }
+
+  return result;
+};
+
 export const getTargets = (slot: ISlot, state: BoardState): string[] => {
   switch (slot.piece?.figure) {
     case PAWN:
@@ -311,7 +364,9 @@ export const getTargets = (slot: ISlot, state: BoardState): string[] => {
     case KNIGHT:
       return getKnightTargets(slot, state);
     case ROOK:
+      return getRookTargets(slot, state);
     case QUEEN:
+      return [...getBishopTargets(slot, state), ...getRookTargets(slot, state)];
     case KING:
     default:
       return [];
