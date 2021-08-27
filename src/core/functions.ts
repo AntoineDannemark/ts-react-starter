@@ -355,6 +355,31 @@ const getRookTargets = (slot: ISlot, state: BoardState): string[] => {
   return result;
 };
 
+const getKingTargets = (slot: ISlot, state: BoardState): string[] => {
+  const { board, color } = state;
+
+  const result: string[] = [];
+
+  const [rowIdx, colIdx] = parseCoords(slot.coords);
+
+  for (let i = -1; i < 2; i++) {
+    for (let j = -1; j < 2; j++) {
+      const targetRow = rowIdx + i;
+      const targetCol = colIdx + j;
+
+      if (
+        !(i === 0 && j === 0) &&
+        !outOfBound(targetRow) &&
+        !outOfBound(targetCol) &&
+        !isTeamMate(targetRow, targetCol, board, color)
+      )
+        result.push(stringifyTarget(targetRow, targetCol));
+    }
+  }
+
+  return result;
+};
+
 export const getTargets = (slot: ISlot, state: BoardState): string[] => {
   switch (slot.piece?.figure) {
     case PAWN:
@@ -368,6 +393,7 @@ export const getTargets = (slot: ISlot, state: BoardState): string[] => {
     case QUEEN:
       return [...getBishopTargets(slot, state), ...getRookTargets(slot, state)];
     case KING:
+      return getKingTargets(slot, state);
     default:
       return [];
   }
