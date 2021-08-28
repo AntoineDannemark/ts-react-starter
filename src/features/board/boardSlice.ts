@@ -25,8 +25,11 @@ const boardSlice = createSlice({
         state.selected = null;
         state.targets = [];
       } else {
-        state.selected = payload;
-        state.targets = getTargets(payload, state.board);
+        const targets = getTargets(payload, state.board);
+        if (targets.length) {
+          state.targets = targets;
+          state.selected = payload;
+        }
       }
     },
     move: (state, { payload }: PayloadAction<ISlot>) => {
