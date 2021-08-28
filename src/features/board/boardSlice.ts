@@ -31,6 +31,7 @@ const boardSlice = createSlice({
     },
     move: (state, { payload }: PayloadAction<ISlot>) => {
       if (!state.selected) return;
+
       const [targetRowIdx, targetColIdx] = parseCoords(payload.coords);
       const [selectedRowIdx, selectedColIdx] = parseCoords(
         state.selected.coords

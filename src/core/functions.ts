@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
+import { cloneDeep } from 'lodash-es';
+
 import {
   BLACK,
   BISHOP,
@@ -181,7 +182,8 @@ const isNotCurrentPosition = (rowAdd: number, colAdd: number): boolean =>
   !(rowAdd === 0 && colAdd === 0);
 
 const isValidKnightMove = (rowAdd: number, colAdd: number): boolean =>
-  (rowAdd === 2 && colAdd === 1) || (rowAdd === 1 && colAdd === 2);
+  (Math.abs(rowAdd) === 2 && Math.abs(colAdd) === 1) ||
+  (Math.abs(rowAdd) === 1 && Math.abs(colAdd) === 2);
 
 const isPawnFirstMove = (color: Color, rowIdx: number): boolean =>
   color === BLACK ? rowIdx === 6 : rowIdx === 1;
@@ -206,34 +208,20 @@ const isNoLethalTarget = (
   targetRow: number,
   targetCol: number
 ): boolean => {
-  const [rowIdx, colIdx] = parseCoords(slot.coords);
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { color } = slot.piece!;
+  if (!slot.piece) throw new Error('Checking lethal target on empty slot');
 
-  const nextBoard = {
-    ...board,
-    [rowIdx]: {
-      ...board[rowIdx],
-      [colIdx]: {
-        ...board[rowIdx][colIdx],
-        piece: null,
-      },
-    },
-    [targetRow]: {
-      ...board[targetRow],
-      [targetCol]: {
-        ...board[targetRow][targetCol],
-        piece: slot.piece,
-      },
-    },
-  };
+  const [currentRowIdx, currentColIdx] = parseCoords(slot.coords);
 
-  const kingsPosition =
-    slot.piece?.figure === KING
-      ? // Hacky but seems to fix issues
-        stringifyTarget(targetRow, targetCol)
-      : getKingPosition(nextBoard, color);
+  const { color } = slot.piece;
 
+  const nextBoard = cloneDeep(board);
+
+  nextBoard[targetRow][targetCol].piece = slot.piece;
+  nextBoard[currentRowIdx][currentColIdx].piece = null;
+
+  const kingsPosition = getKingPosition(nextBoard, color);
+
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const opponentsTargets = getOpponentsTargets(nextBoard, color);
 
   const result = !opponentsTargets.includes(kingsPosition);
