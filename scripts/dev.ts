@@ -11,7 +11,9 @@ const PORT = parseInt(process.env.PORT as string, 10) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
 const compiler = Webpack(webpackConfig);
-const server = new WebpackDevServer(compiler);
+const server = new WebpackDevServer(compiler, {
+    hot: true,
+});
 
 server.listen(PORT, HOST, () => {
     console.log(`Starting server on http://localhost:${PORT}`);
