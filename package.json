@@ -21,6 +21,7 @@
     "@babel/preset-typescript": "^7.14.5",
     "@types/compression-webpack-plugin": "^6.0.5",
     "@types/fork-ts-checker-webpack-plugin": "^0.4.5",
+    "@types/lodash-es": "^4.17.4",
     "@types/mini-css-extract-plugin": "^2.0.0",
     "@types/node": "^16.3.1",
     "@types/react": "^17.0.18",
@@ -67,6 +68,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.6.1",
+    "lodash-es": "^4.17.21",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.4",
