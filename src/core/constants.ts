@@ -57,6 +57,11 @@ export type FigureSymbol =
   | typeof BLACK_KNIGHT_SYMBOL
   | typeof BLACK_PAWN_SYMBOL;
 
+// Empty Target Symbol
+export const EMPTY_TARGET_SYMBOL = '·';
+
+export type EmptyTargetSymbol = typeof EMPTY_TARGET_SYMBOL;
+
 // Empty String
 export const EMPTY_STRING = '';
 

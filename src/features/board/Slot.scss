@@ -7,13 +7,20 @@
     align-items: center;
     justify-content: center;
     background-color: darkkhaki;
+    opacity: 0.7;
     &__black {
         background-color: firebrick;
     }
     &__selected {
-        background-color: pink;
+        background-color: orangered;
+        opacity: 1;
+        cursor: pointer;
     }
     &__target {
-        background-color: orchid;
+        opacity: 1;
+        cursor: pointer;
+    }
+    &__noSelected { 
+        opacity: 1;
     }
 }

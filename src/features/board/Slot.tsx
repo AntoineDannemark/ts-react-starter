@@ -6,7 +6,7 @@ import { useAppDispatch, useTypedSelector } from '../../app/hooks';
 
 import { renderPiece } from '../../core/functions';
 
-import { BLACK } from '../../core/constants';
+import { BLACK, EMPTY_TARGET_SYMBOL } from '../../core/constants';
 
 import { ISlot } from './interfaces';
 
@@ -20,8 +20,10 @@ interface SlotProps {
 const Slot: React.FC<SlotProps> = ({ slot }) => {
   const { selected, color, targets } = useTypedSelector(state => state.board);
 
+  const noneSelected = !selected;
   const isSelected = selected?.coords === slot.coords;
   const isTarget = targets.includes(slot.coords);
+  const isBlack = slot.color === BLACK;
 
   const dispatch = useAppDispatch();
 
@@ -36,11 +38,13 @@ const Slot: React.FC<SlotProps> = ({ slot }) => {
   return (
     <div
       className={'slot'
-        .concat(slot.color === BLACK ? ' slot__black' : '')
+        .concat(isBlack ? ' slot__black' : '')
         .concat(isSelected ? ' slot__selected' : '')
-        .concat(isTarget ? ' slot__target' : '')}
+        .concat(isTarget ? ' slot__target' : '')
+        .concat(noneSelected ? ' slot__noSelected' : '')}
       onClick={handleClick}>
       {slot.piece && renderPiece(slot.piece)}
+      {!slot.piece && isTarget && EMPTY_TARGET_SYMBOL}
     </div>
   );
 };
