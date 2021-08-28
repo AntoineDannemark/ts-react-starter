@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { generateBoard, getTargets, parseCoords } from '../../core/functions';
 
-import { BOARD_DOMAIN, WHITE } from '../../core/constants';
+import { BLACK, BOARD_DOMAIN, WHITE } from '../../core/constants';
 
 import type { BoardState, ISlot } from './interfaces';
 
@@ -26,7 +26,7 @@ const boardSlice = createSlice({
         state.targets = [];
       } else {
         state.selected = payload;
-        state.targets = getTargets(payload, state);
+        state.targets = getTargets(payload, state.board);
       }
     },
     move: (state, { payload }: PayloadAction<ISlot>) => {
@@ -44,6 +44,9 @@ const boardSlice = createSlice({
 
       state.selected = null;
       state.targets = [];
+
+      // TODO Update later using currentPlayingColor
+      state.color = target.piece!.color === BLACK ? WHITE : BLACK;
     },
   },
 });

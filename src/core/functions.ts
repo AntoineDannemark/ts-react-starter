@@ -1,13 +1,7 @@
-import type {
-  ISlot,
-  IBoard,
-  IRow,
-  BoardState,
-} from '../features/board/interfaces';
-
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import {
-  BISHOP,
   BLACK,
+  BISHOP,
   WHITE,
   BLACK_BISHOP_SYMBOL,
   BLACK_KING_SYMBOL,
@@ -32,6 +26,8 @@ import {
   Piece,
   WHITE_KNIGHT_SYMBOL,
 } from './constants';
+
+import type { ISlot, IBoard, IRow } from '../features/board/interfaces';
 
 const getPieceColor = (row: number): Color => (row < 2 ? WHITE : BLACK);
 
@@ -143,22 +139,16 @@ export const parseCoords = (coords: string): [number, number] => [
 const stringifyTarget = (rowIdx: number, colIdx: number): string =>
   `${rowIdx},${colIdx}`;
 
-const outOfBound = (index: number) => index < 0 || index > 7;
+const isOutOfBound = (index: number) => index < 0 || index > 7;
+
+const isInboundTarget = (rowIdx: number, colIdx: number): boolean =>
+  !isOutOfBound(rowIdx) && !isOutOfBound(colIdx);
 
 const isNotEmpty = (rowIdx: number, colIdx: number, board: IBoard): boolean =>
-  !!board[rowIdx][colIdx].piece;
+  !!board[rowIdx][colIdx]?.piece?.figure;
 
 const isEmpty = (rowIdx: number, colIdx: number, board: IBoard): boolean =>
   !isNotEmpty(rowIdx, colIdx, board);
-
-const isTeamMate = (
-  rowIdx: number,
-  colIdx: number,
-  board: IBoard,
-  color: Color
-): boolean =>
-  isNotEmpty(rowIdx, colIdx, board) &&
-  board[rowIdx][colIdx].piece?.color === color;
 
 const isOpponent = (
   rowIdx: number,
@@ -169,8 +159,13 @@ const isOpponent = (
   isNotEmpty(rowIdx, colIdx, board) &&
   board[rowIdx][colIdx].piece?.color !== color;
 
-const isPawnFirstMove = (color: Color, rowIdx: number): boolean =>
-  color === BLACK ? rowIdx === 6 : rowIdx === 1;
+const isOpponentOrEmpty = (
+  rowIx: number,
+  colIdx: number,
+  board: IBoard,
+  color: Color
+): boolean =>
+  isOpponent(rowIx, colIdx, board, color) || isEmpty(rowIx, colIdx, board);
 
 const isEmptyStraightOrOpponentDiagonal = (
   colIdx: number,
@@ -180,31 +175,101 @@ const isEmptyStraightOrOpponentDiagonal = (
   color: Color
 ): boolean =>
   (colIdx !== targetCol && isOpponent(targetRow, targetCol, board, color)) ||
-  (isEmpty(targetRow, targetCol, board) && colIdx === targetCol);
+  (colIdx === targetCol && isEmpty(targetRow, targetCol, board));
 
-const getPawnTargets = (slot: ISlot, state: BoardState): string[] => {
+const isNotCurrentPosition = (rowAdd: number, colAdd: number): boolean =>
+  !(rowAdd === 0 && colAdd === 0);
+
+const isValidKnightMove = (rowAdd: number, colAdd: number): boolean =>
+  (rowAdd === 2 && colAdd === 1) || (rowAdd === 1 && colAdd === 2);
+
+const isPawnFirstMove = (color: Color, rowIdx: number): boolean =>
+  color === BLACK ? rowIdx === 6 : rowIdx === 1;
+
+const getKingPosition = (board: IBoard, color: Color): string => {
+  let result = '';
+
+  Object.values(board).forEach(row =>
+    Object.values(row).forEach(slot => {
+      if (slot.piece?.figure === KING && slot.piece.color === color) {
+        result = slot.coords;
+      }
+    })
+  );
+
+  return result;
+};
+
+const isNoLethalTarget = (
+  slot: ISlot,
+  board: IBoard,
+  targetRow: number,
+  targetCol: number
+): boolean => {
+  const [rowIdx, colIdx] = parseCoords(slot.coords);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { color } = slot.piece!;
+
+  const nextBoard = {
+    ...board,
+    [rowIdx]: {
+      ...board[rowIdx],
+      [colIdx]: {
+        ...board[rowIdx][colIdx],
+        piece: null,
+      },
+    },
+    [targetRow]: {
+      ...board[targetRow],
+      [targetCol]: {
+        ...board[targetRow][targetCol],
+        piece: slot.piece,
+      },
+    },
+  };
+
+  const kingsPosition =
+    slot.piece?.figure === KING
+      ? // Hacky but seems to fix issues
+        stringifyTarget(targetRow, targetCol)
+      : getKingPosition(nextBoard, color);
+
+  const opponentsTargets = getOpponentsTargets(nextBoard, color);
+
+  const result = !opponentsTargets.includes(kingsPosition);
+
+  return result;
+};
+
+const getPawnTargets = (
+  slot: ISlot,
+  board: IBoard,
+  includeCheckComputation: boolean
+): string[] => {
   const result: string[] = [];
 
-  const { color, board } = state;
+  if (!slot.piece) return result;
 
   const [rowIdx, colIdx] = parseCoords(slot.coords);
+  const { color } = slot.piece;
 
   const targetRow = color === BLACK ? rowIdx - 1 : rowIdx + 1;
-
-  if (outOfBound(targetRow)) return result;
+  const secondTargetRow = color === BLACK ? rowIdx - 2 : rowIdx + 2;
 
   for (let i = -1; i < 2; i++) {
     const targetCol = colIdx + i;
 
     if (
-      !outOfBound(targetCol) &&
+      isInboundTarget(targetRow, targetCol) &&
       isEmptyStraightOrOpponentDiagonal(
         colIdx,
         targetRow,
         targetCol,
         board,
         color
-      )
+      ) &&
+      (!includeCheckComputation ||
+        isNoLethalTarget(slot, board, targetRow, targetCol))
     ) {
       result.push(stringifyTarget(targetRow, targetCol));
     }
@@ -213,20 +278,27 @@ const getPawnTargets = (slot: ISlot, state: BoardState): string[] => {
   if (
     isPawnFirstMove(color, rowIdx) &&
     isEmpty(targetRow, colIdx, board) &&
-    isEmpty(targetRow + 1, colIdx, board)
+    isEmpty(secondTargetRow, colIdx, board) &&
+    (!includeCheckComputation ||
+      isNoLethalTarget(slot, board, secondTargetRow, colIdx))
   ) {
-    result.push(stringifyTarget(targetRow + 1, colIdx));
+    result.push(stringifyTarget(secondTargetRow, colIdx));
   }
 
   return result;
 };
 
-const getKnightTargets = (slot: ISlot, state: BoardState): string[] => {
-  const { board, color } = state;
-
+const getKnightTargets = (
+  slot: ISlot,
+  board: IBoard,
+  includeCheckComputation: boolean
+): string[] => {
   const result: string[] = [];
 
+  if (!slot.piece) return result;
+
   const [rowIdx, colIdx] = parseCoords(slot.coords);
+  const { color } = slot.piece;
 
   for (let rowAdd = -2; rowAdd < 3; rowAdd++) {
     for (let colAdd = -2; colAdd < 3; colAdd++) {
@@ -234,12 +306,11 @@ const getKnightTargets = (slot: ISlot, state: BoardState): string[] => {
       const targetCol = colIdx + colAdd;
 
       if (
-        !outOfBound(targetRow) &&
-        !outOfBound(targetCol) &&
-        colAdd !== 0 &&
-        rowAdd !== 0 &&
-        Math.abs(rowAdd) !== Math.abs(colAdd) &&
-        !isTeamMate(targetRow, targetCol, board, color)
+        isInboundTarget(targetRow, targetCol) &&
+        isValidKnightMove(rowAdd, colAdd) &&
+        isOpponentOrEmpty(targetRow, targetCol, board, color) &&
+        (!includeCheckComputation ||
+          isNoLethalTarget(slot, board, targetRow, targetCol))
       ) {
         result.push(`${targetRow},${targetCol}`);
       }
@@ -249,12 +320,17 @@ const getKnightTargets = (slot: ISlot, state: BoardState): string[] => {
   return result;
 };
 
-const getBishopTargets = (slot: ISlot, state: BoardState): string[] => {
-  const { board, color } = state;
-
+const getBishopTargets = (
+  slot: ISlot,
+  board: IBoard,
+  includeCheckComputation: boolean
+): string[] => {
   const result: string[] = [];
 
+  if (!slot.piece) return result;
+
   const [rowIdx, colIdx] = parseCoords(slot.coords);
+  const { color } = slot.piece;
 
   const directions = [
     // Upper Right
@@ -289,10 +365,17 @@ const getBishopTargets = (slot: ISlot, state: BoardState): string[] => {
         const targetRow = direction.getTargetRow(i);
         const targetCol = direction.getTargetCol(i);
 
-        if (!outOfBound(targetRow) && !outOfBound(targetCol)) {
-          // eslint-disable-next-line no-param-reassign
-          if (isNotEmpty(targetRow, targetCol, board)) direction.stop = true;
-          if (!isTeamMate(targetRow, targetCol, board, color))
+        if (isInboundTarget(targetRow, targetCol)) {
+          if (!isEmpty(targetRow, targetCol, board)) {
+            // eslint-disable-next-line no-param-reassign
+            direction.stop = true;
+          }
+
+          if (
+            isOpponentOrEmpty(targetRow, targetCol, board, color) &&
+            (!includeCheckComputation ||
+              isNoLethalTarget(slot, board, targetRow, targetCol))
+          )
             result.push(stringifyTarget(targetRow, targetCol));
         }
       }
@@ -302,12 +385,17 @@ const getBishopTargets = (slot: ISlot, state: BoardState): string[] => {
   return result;
 };
 
-const getRookTargets = (slot: ISlot, state: BoardState): string[] => {
-  const { board, color } = state;
-
+const getRookTargets = (
+  slot: ISlot,
+  board: IBoard,
+  includeCheckComputation: boolean
+): string[] => {
   const result: string[] = [];
 
+  if (!slot.piece) return result;
+
   const [rowIdx, colIdx] = parseCoords(slot.coords);
+  const { color } = slot.piece;
 
   const directions = [
     // Up
@@ -342,10 +430,15 @@ const getRookTargets = (slot: ISlot, state: BoardState): string[] => {
         const targetRow = direction.getTargetRow(i);
         const targetCol = direction.getTargetCol(i);
 
-        if (!outOfBound(targetRow) && !outOfBound(targetCol)) {
+        if (isInboundTarget(targetRow, targetCol)) {
           // eslint-disable-next-line no-param-reassign
           if (isNotEmpty(targetRow, targetCol, board)) direction.stop = true;
-          if (!isTeamMate(targetRow, targetCol, board, color))
+
+          if (
+            isOpponentOrEmpty(targetRow, targetCol, board, color) &&
+            (!includeCheckComputation ||
+              isNoLethalTarget(slot, board, targetRow, targetCol))
+          )
             result.push(stringifyTarget(targetRow, targetCol));
         }
       }
@@ -355,46 +448,79 @@ const getRookTargets = (slot: ISlot, state: BoardState): string[] => {
   return result;
 };
 
-const getKingTargets = (slot: ISlot, state: BoardState): string[] => {
-  const { board, color } = state;
-
+const getKingTargets = (
+  slot: ISlot,
+  board: IBoard,
+  includeCheckComputation: boolean
+): string[] => {
   const result: string[] = [];
 
-  const [rowIdx, colIdx] = parseCoords(slot.coords);
+  if (!slot.piece) return result;
 
-  for (let i = -1; i < 2; i++) {
-    for (let j = -1; j < 2; j++) {
-      const targetRow = rowIdx + i;
-      const targetCol = colIdx + j;
+  const [rowIdx, colIdx] = parseCoords(slot.coords);
+  const { color } = slot.piece;
+
+  for (let rowAdd = -1; rowAdd < 2; rowAdd++) {
+    for (let colAdd = -1; colAdd < 2; colAdd++) {
+      const targetRow = rowIdx + rowAdd;
+      const targetCol = colIdx + colAdd;
 
       if (
-        !(i === 0 && j === 0) &&
-        !outOfBound(targetRow) &&
-        !outOfBound(targetCol) &&
-        !isTeamMate(targetRow, targetCol, board, color)
-      )
-        result.push(stringifyTarget(targetRow, targetCol));
+        isNotCurrentPosition(rowAdd, colAdd) &&
+        isInboundTarget(targetRow, targetCol) &&
+        isOpponentOrEmpty(targetRow, targetCol, board, color)
+      ) {
+        if (
+          !includeCheckComputation ||
+          isNoLethalTarget(slot, board, targetRow, targetCol)
+        ) {
+          result.push(stringifyTarget(targetRow, targetCol));
+        }
+      }
     }
   }
 
   return result;
 };
 
-export const getTargets = (slot: ISlot, state: BoardState): string[] => {
+export const getTargets = (
+  slot: ISlot,
+  board: IBoard,
+  includeCheckComputation = true
+): string[] => {
   switch (slot.piece?.figure) {
     case PAWN:
-      return getPawnTargets(slot, state);
+      return getPawnTargets(slot, board, includeCheckComputation);
     case BISHOP:
-      return getBishopTargets(slot, state);
+      return getBishopTargets(slot, board, includeCheckComputation);
     case KNIGHT:
-      return getKnightTargets(slot, state);
+      return getKnightTargets(slot, board, includeCheckComputation);
     case ROOK:
-      return getRookTargets(slot, state);
+      return getRookTargets(slot, board, includeCheckComputation);
     case QUEEN:
-      return [...getBishopTargets(slot, state), ...getRookTargets(slot, state)];
+      return [
+        ...getBishopTargets(slot, board, includeCheckComputation),
+        ...getRookTargets(slot, board, includeCheckComputation),
+      ];
     case KING:
-      return getKingTargets(slot, state);
+      return getKingTargets(slot, board, includeCheckComputation);
     default:
       return [];
   }
+};
+
+const getOpponentsTargets = (board: IBoard, color: Color): string[] => {
+  const result: string[] = [];
+
+  Object.values(board).forEach(row =>
+    Object.values(row).forEach(slot => {
+      const [rowIdx, colIdx] = parseCoords(slot.coords);
+
+      if (slot.piece && isOpponent(rowIdx, colIdx, board, color)) {
+        result.push(...getTargets(slot, board, false));
+      }
+    })
+  );
+
+  return result;
 };
