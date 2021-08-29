@@ -61,6 +61,17 @@ const createConfig = (env: any, argv: any): webpack.Configuration => {
             },
           ],
         },
+        {
+          test: /\.(png|jp(e*)g|svg|gif)$/,
+          use: [
+            {
+              loader: 'file-loader',
+              options: {
+                name: 'images/[hash]-[name].[ext]',
+              },
+            },
+          ],
+        },
       ],
     },
     optimization: {
