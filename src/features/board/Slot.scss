@@ -6,21 +6,40 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: darkkhaki;
-    opacity: 0.7;
+    background-color: #eeeed2;
+    -webkit-text-background-color: white;
     &__black {
-        background-color: firebrick;
+        background-color: #769656;
     }
     &__selected {
-        background-color: orangered;
-        opacity: 1;
+        background-color: lightblue;
         cursor: pointer;
     }
     &__target {
-        opacity: 1;
-        cursor: pointer;
-    }
-    &__noSelected { 
-        opacity: 1;
+        &__black {
+            background-color: #baca2b;
+            cursor: pointer;
+            &:hover {
+                outline: solid 2px lightblue;
+                z-index: 5;
+                cursor: grab;
+            }
+            &:move {
+                cursor: grabbing;
+            }
+        }
+        &__white {
+            background-color: #f6f669;
+            cursor: pointer;
+            &:hover {
+                outline: solid 2px lightblue;
+                z-index: 5;
+                cursor: grab;
+            }
+        }
     }
 }
+
+
+// background-image: radial-gradient(#5a7244 15%, #769656 20%);
+// background-image: radial-gradient(#5a7244 15%, #eeeed2 20%);

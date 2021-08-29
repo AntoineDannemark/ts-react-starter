@@ -439,7 +439,9 @@ const getRookTargets = (
 const getKingTargets = (
   slot: ISlot,
   board: IBoard,
-  includeCheckComputation: boolean
+  includeCheckComputation: boolean,
+  smallRoqueAllowed: boolean,
+  greatRoqueAllowed: boolean
 ): string[] => {
   const result: string[] = [];
 
@@ -468,12 +470,22 @@ const getKingTargets = (
     }
   }
 
+  if (smallRoqueAllowed) {
+    result.push(slot.piece.color === BLACK ? '7,6' : '0,6');
+  }
+
+  if (greatRoqueAllowed) {
+    result.push(slot.piece.color === BLACK ? '7,2' : '0,2');
+  }
+
   return result;
 };
 
 export const getTargets = (
   slot: ISlot,
   board: IBoard,
+  smallRoqueAllowed: boolean,
+  greatRoqueAllowed: boolean,
   includeCheckComputation = true
 ): string[] => {
   switch (slot.piece?.figure) {
@@ -491,7 +503,13 @@ export const getTargets = (
         ...getRookTargets(slot, board, includeCheckComputation),
       ];
     case KING:
-      return getKingTargets(slot, board, includeCheckComputation);
+      return getKingTargets(
+        slot,
+        board,
+        includeCheckComputation,
+        smallRoqueAllowed,
+        greatRoqueAllowed
+      );
     default:
       return [];
   }
@@ -505,7 +523,8 @@ const getOpponentsTargets = (board: IBoard, color: Color): string[] => {
       const [rowIdx, colIdx] = parseCoords(slot.coords);
 
       if (slot.piece && isOpponent(rowIdx, colIdx, board, color)) {
-        result.push(...getTargets(slot, board, false));
+        // TODO Check handling of roque in that case
+        result.push(...getTargets(slot, board, false, false, false));
       }
     })
   );

@@ -19,4 +19,8 @@ export interface BoardState {
   color: Color;
   selected: ISlot | null;
   targets: string[];
+  lastPos: ISlot | null;
+  lastTarget: ISlot | null;
+  draggedOver: ISlot | null;
+  roqueAllowed: boolean;
 }
