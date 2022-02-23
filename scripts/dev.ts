@@ -8,41 +8,16 @@ const WebpackDevServer = require('webpack-dev-server');
 const webpackConfig = require('../config/webpack.config')(process.env.NODE_ENV);
 
 const PORT = parseInt(process.env.PORT as string, 10) || 3000;
-const HOST = process.env.HOST || '0.0.0.0';
+const HOST = process.env.HOST || 'localhost';
 
 const compiler = Webpack(webpackConfig);
-const server = new WebpackDevServer(compiler);
+// @TODO refine opts
+const devServerOptions = { port: PORT, host: HOST, open: true };
+const server = new WebpackDevServer(devServerOptions, compiler);
 
-server.listen(PORT, HOST, () => {
+const runServer = async () => {
     console.log(`Starting server on http://localhost:${PORT}`);
-})
+    await server.start();
+  };
 
-// const address = require('address');
-
-// const localUrlForLan = address.ip();
-
-// console.log(localUrlForLan);
-
-// // const {
-// //     choosePort,
-// //     // createCompiler,
-// //     // prepareProxy,
-// //     prepareUrls,
-// //   } = require('react-dev-utils/WebpackDevServerUtils');
-
-// const getConfig = require('../config/webpack.config');
-
-// const config = getConfig(process.env.NODE_ENV);
-
-// const devServer = new WebpackDevServer(webpack(config));
-
-// setTimeout(() => devServer.sockWrite(devServer.sockets, 'warnings', "PROUTE"), 5000);
-
-// devServer.listen(process.env.PORT, process.env.HOST, (err: Error) => {
-//   if (err) {
-//     console.log(err);
-//   }
-//   console.log('Listening');
-// });
-
-
+runServer();
