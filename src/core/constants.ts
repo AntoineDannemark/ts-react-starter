@@ -16,17 +16,17 @@ export const QUEEN = 'queen';
 export const KING = 'king';
 
 export type Figure =
-  | typeof PAWN
-  | typeof BISHOP
-  | typeof KNIGHT
-  | typeof ROOK
-  | typeof QUEEN
-  | typeof KING;
+    | typeof PAWN
+    | typeof BISHOP
+    | typeof KNIGHT
+    | typeof ROOK
+    | typeof QUEEN
+    | typeof KING;
 
 // Pieces
 export type Piece = {
-  figure: Figure;
-  color: Color;
+    figure: Figure;
+    color: Color;
 };
 
 // Symbols
@@ -44,18 +44,18 @@ export const BLACK_KNIGHT_SYMBOL = '♞';
 export const BLACK_PAWN_SYMBOL = '♟';
 
 export type FigureSymbol =
-  | typeof WHITE_KING_SYMBOL
-  | typeof WHITE_QUEEN_SYMBOL
-  | typeof WHITE_ROOK_SYMBOL
-  | typeof WHITE_BISHOP_SYMBOL
-  | typeof WHITE_KNIGHT_SYMBOL
-  | typeof WHITE_PAWN_SYMBOL
-  | typeof BLACK_KING_SYMBOL
-  | typeof BLACK_QUEEN_SYMBOL
-  | typeof BLACK_ROOK_SYMBOL
-  | typeof BLACK_BISHOP_SYMBOL
-  | typeof BLACK_KNIGHT_SYMBOL
-  | typeof BLACK_PAWN_SYMBOL;
+    | typeof WHITE_KING_SYMBOL
+    | typeof WHITE_QUEEN_SYMBOL
+    | typeof WHITE_ROOK_SYMBOL
+    | typeof WHITE_BISHOP_SYMBOL
+    | typeof WHITE_KNIGHT_SYMBOL
+    | typeof WHITE_PAWN_SYMBOL
+    | typeof BLACK_KING_SYMBOL
+    | typeof BLACK_QUEEN_SYMBOL
+    | typeof BLACK_ROOK_SYMBOL
+    | typeof BLACK_BISHOP_SYMBOL
+    | typeof BLACK_KNIGHT_SYMBOL
+    | typeof BLACK_PAWN_SYMBOL;
 
 // Empty Target Symbol
 export const EMPTY_TARGET_SYMBOL = '·';

@@ -2,12 +2,10 @@ import React from 'react';
 
 import Board from '../features/board/Board';
 
-const App: React.FC = () => {
-  return (
+const App: React.FC = () => (
     <>
-      <Board />
+        <Board />
     </>
-  );
-};
+);
 
 export default App;
