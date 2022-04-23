@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "format": "prettier --config .prettierrc src/**/*.ts{,x} --write",
+    "prettier": "prettier --config .prettierrc src/**/*.ts{,x} --write",
     "lint": "tsc && eslint src/**/*.ts{,x}",
     "lint:fix": "npm run lint -- --fix",
     "dev": "cross-env NODE_ENV=development PORT=8100 TS_NODE_PROJECT=\"config\\tsconfig.webpack.json\" ts-node scripts/dev",

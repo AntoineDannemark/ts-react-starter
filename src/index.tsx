@@ -6,7 +6,7 @@ import App from './app/App';
 import './style.scss';
 
 const renderApp = (): void => {
-  render(<App />, document.getElementById('root'));
+    render(<App />, document.getElementById('root'));
 };
 
 renderApp();
