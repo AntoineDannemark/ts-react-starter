@@ -14,17 +14,11 @@ const HOST = process.env.HOST || 'localhost';
 const devServerOptions = { port: PORT, host: HOST, open: true, hot: true };
 
 const compiler = Webpack(webpackConfig);
-const server = new WebpackDevServer(
-    {
-        port: PORT,
-        hot: true,
-    },
-    compiler
-);
+const server = new WebpackDevServer(devServerOptions, compiler);
 
 const start = async () => {
     await server.start();
     console.log(`Dev server is listening ${HOST}:${PORT}`);
 };
 
-start()
+start();
